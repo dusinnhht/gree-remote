@@ -144,6 +144,15 @@ def bind_device(search_result):
             key = bind_resp['key']
             print('Bind to %s succeeded, key = %s' % (search_result.id, key))
 
+def connect():
+    print('Connect device to %s, pass: %s' % (args.ssid, args.wlanpass))
+
+    pack = '{"psw":"%s","ssid":"%s","t":"wlan"}' % (args.wlanpass, args.ssid)
+    print(pack)
+    result = send_data("192.168.1.1", 7000, bytes(pack, encoding='utf-8'))
+    print(result)
+    
+
 
 def get_param():
     print(f'Getting parameters: {", ".join(args.params)}')
@@ -225,6 +234,8 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--broadcast', help='Broadcast IP address of the network the devices connecting to')
     parser.add_argument('-i', '--id', help='Unique ID of the device')
     parser.add_argument('-k', '--key', help='Unique encryption key of the device')
+    parser.add_argument('-s', '--ssid', help='SSID (Wifi name) to connect to')
+    parser.add_argument('-p', '--wlanpass', help='Password of the given SSID (Wifi name)')
     parser.add_argument('--verbose', help='Enable verbose logging', action='store_true')
     if sys.platform == 'linux':
         parser.add_argument('--socket-interface', help='Bind the socket to a specific network interface')
@@ -250,6 +261,12 @@ if __name__ == '__main__':
                   'device key (-k)')
             exit(1)
         set_param()
+    elif command == 'connect':
+        if args.ssid is None or args.wlanpass is None :
+            print('Error: connect command requires an SSID (-s) and a '
+                  'WLAN pass (-p), and requires you to connect to the AC\'s hotspot with this device')
+            exit(1)
+        connect()
     else:
         print('Error: unknown command "%s"' % args.command)
         exit(1)
